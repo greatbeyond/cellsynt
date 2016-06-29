@@ -27,20 +27,37 @@ type Message interface {
 	GetParameters() map[string]string
 }
 
-// BaseMessage contains default values that all message types share.
-// Theese values can be omitted if you want to use the client default
-type BaseMessage struct {
-	// Required
-	Destinations []string
-
+type Options struct {
 	// Optional
 	OriginatorType OriginatorType
 	Originator     string
-	CountryCode    string
+}
+
+func (b *Options) GetParameters() map[string]string {
+	params := map[string]string{
+		"originatortype": string(b.OriginatorType),
+		"originator":     b.Originator,
+	}
+	return clearEmptyParams(params)
+}
+
+// Reciptient contains default values that all message types share.
+// Theese values can be omitted if you want to use the client default
+type Reciptient struct {
+	// Required
+	Destinations []string
+
+	// Optional, can be included in destination
+	CountryCode string
 }
 
 // Destination is the Destination address(es) formatted for cellsynt
-func (b *BaseMessage) Destination() string {
+func (b *Reciptient) Destination() string {
+
+	if b == nil {
+		return ""
+	}
+
 	phones := []string{}
 	for _, phone := range b.Destinations {
 		if strings.HasPrefix(phone, "+") {
@@ -50,16 +67,15 @@ func (b *BaseMessage) Destination() string {
 		}
 		phones = append(phones, phone)
 	}
+
 	return strings.Join(phones, ",")
 }
 
-func (b *BaseMessage) baseParameters() map[string]string {
+func (b *Reciptient) GetParameters() map[string]string {
 	params := map[string]string{
-		"destination":    b.Destination(),
-		"originatortype": string(b.OriginatorType),
-		"originator":     b.Originator,
+		"destination": b.Destination(),
 	}
-	return params
+	return clearEmptyParams(params)
 }
 
 // TextMessage is used to send a normal text message. Maximum number of characters is 160. Any characters
@@ -73,7 +89,8 @@ type TextMessage struct {
 	Charset     Charset
 	AllowConcat bool
 
-	*BaseMessage
+	*Reciptient
+	*Options
 }
 
 // Type returns the message type
@@ -82,14 +99,17 @@ func (m *TextMessage) Type() string { return "text" }
 // GetParameters implements Message interface
 func (m *TextMessage) GetParameters() map[string]string {
 	params := map[string]string{
-		"type":    m.Type(),
-		"text":    url.QueryEscape(m.Text),
-		"charset": string(m.Charset),
+		"type":        m.Type(),
+		"text":        url.QueryEscape(m.Text),
+		"charset":     string(m.Charset),
+		"allowconcat": ternaryStr(m.AllowConcat, "6", ""),
 	}
-	for k, v := range m.baseParameters() {
-		params[k] = v
+	params = mergeParams(params, m.Reciptient.GetParameters())
+	if m.Options != nil {
+		params = mergeParams(params, m.Options.GetParameters())
 	}
-	return params
+
+	return clearEmptyParams(params)
 }
 
 // BinaryMessage  can be used to send settings, bookmarks, visiting cards etc. See relevant phone
@@ -98,9 +118,10 @@ func (m *TextMessage) GetParameters() map[string]string {
 // Parameters can be set individually, it is not mandatory to use both, however, at least one of them
 type BinaryMessage struct {
 	Binary []byte
-	UHD    []byte
+	UDH    []byte
 
-	*BaseMessage
+	*Reciptient
+	*Options
 }
 
 // Type returns the message type
@@ -111,12 +132,13 @@ func (m *BinaryMessage) GetParameters() map[string]string {
 	params := map[string]string{
 		"type": m.Type(),
 		"data": string(m.Binary),
-		"uhd":  string(m.UHD),
+		"udh":  string(m.UDH),
 	}
-	for k, v := range m.baseParameters() {
-		params[k] = v
+	params = mergeParams(params, m.Reciptient.GetParameters())
+	if m.Options != nil {
+		params = mergeParams(params, m.Options.GetParameters())
 	}
-	return params
+	return clearEmptyParams(params)
 }
 
 // FlashMessage is used to send a normal text message which is shown directly on screen instead of being saved in
@@ -128,9 +150,11 @@ type FlashMessage struct {
 	Text string
 
 	// Optional
-	Charset Charset
+	Charset     Charset
+	AllowConcat bool
 
-	*BaseMessage
+	*Reciptient
+	*Options
 }
 
 // Type returns the message type
@@ -139,14 +163,16 @@ func (m *FlashMessage) Type() string { return "flash" }
 // GetParameters implements Message interface
 func (m *FlashMessage) GetParameters() map[string]string {
 	params := map[string]string{
-		"type":    m.Type(),
-		"text":    url.QueryEscape(m.Text),
-		"charset": string(m.Charset),
+		"type":        m.Type(),
+		"text":        url.QueryEscape(m.Text),
+		"charset":     string(m.Charset),
+		"allowconcat": ternaryStr(m.AllowConcat, "6", ""),
 	}
-	for k, v := range m.baseParameters() {
-		params[k] = v
+	params = mergeParams(params, m.Reciptient.GetParameters())
+	if m.Options != nil {
+		params = mergeParams(params, m.Options.GetParameters())
 	}
-	return params
+	return clearEmptyParams(params)
 }
 
 // UnicodeMessage can be used if you need to send characters not available within an ordinary
@@ -163,7 +189,8 @@ type UnicodeMessage struct {
 	Charset     Charset
 	AllowConcat bool
 
-	*BaseMessage
+	*Reciptient
+	*Options
 }
 
 // Type returns the message type
@@ -172,12 +199,14 @@ func (m *UnicodeMessage) Type() string { return "unicode" }
 // GetParameters implements Message interface
 func (m *UnicodeMessage) GetParameters() map[string]string {
 	params := map[string]string{
-		"type":    m.Type(),
-		"text":    url.QueryEscape(m.Text),
-		"charset": string(m.Charset),
+		"type":        m.Type(),
+		"text":        url.QueryEscape(m.Text),
+		"charset":     string(m.Charset),
+		"allowconcat": ternaryStr(m.AllowConcat, "6", ""),
 	}
-	for k, v := range m.baseParameters() {
-		params[k] = v
+	params = mergeParams(params, m.Reciptient.GetParameters())
+	if m.Options != nil {
+		params = mergeParams(params, m.Options.GetParameters())
 	}
-	return params
+	return clearEmptyParams(params)
 }

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"regexp"
 	"runtime"
+	"strings"
 )
 
 func ternaryStr(cond bool, a, b string) string {
@@ -35,4 +36,41 @@ func caller() string {
 	msg := fmt.Sprintf(" [cellsynt/%s.go:%d]", matches[0][2], line)
 
 	return msg
+}
+
+// Merge b into a by copying values, giving priority to a
+func mergeParams(a, b map[string]string) map[string]string {
+	c := map[string]string{}
+	for k, v := range b {
+		c[k] = v
+	}
+	for k, v := range a {
+		c[k] = v
+	}
+	return c
+}
+
+func clearEmptyParams(params map[string]string) map[string]string {
+	cleared := map[string]string{}
+	for k, v := range params {
+		if v != "" {
+			cleared[k] = v
+		}
+	}
+	return cleared
+}
+
+// ByKey is sorting of parameter fields by key
+type ByKey []string
+
+func (s ByKey) Len() int {
+	return len(s)
+}
+func (s ByKey) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s ByKey) Less(i, j int) bool {
+	keya := strings.SplitAfter(s[i], "=")[0]
+	keyb := strings.SplitAfter(s[j], "=")[0]
+	return keya < keyb
 }

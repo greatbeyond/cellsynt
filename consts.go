@@ -15,7 +15,7 @@
 
 package cellsynt
 
-const apiURL = "https://se-1.cellsynt.net/sms.php"
+var apiURL = "https://se-1.cellsynt.net/sms.php"
 
 type OriginatorType string
 

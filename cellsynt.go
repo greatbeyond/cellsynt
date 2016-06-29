@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -61,43 +62,29 @@ func NewClient(username, password string, senderName string) *Client {
 	}
 }
 
-func (c *Client) getParameters(msgParams map[string]string) map[string]string {
-	return map[string]string{
+func (c *Client) getParameters() map[string]string {
+	params := map[string]string{
 		"username":       c.Username,
 		"password":       c.Password,
 		"originatortype": string(c.OriginatorType),
 		"originator":     c.Originator,
 		"charset":        string(c.Charset),
-		"allowconcat":    ternaryStr(c.AllowConcat, "true", "false"),
+		"allowconcat":    ternaryStr(c.AllowConcat, "6", ""),
 	}
+	return clearEmptyParams(params)
 }
 
 // SendMessage dispatches a message to the destination
 func (c *Client) SendMessage(message Message) (*Response, error) {
 
-	// get the message parameters
-	params := message.GetParameters()
-	// get the client parameters
-	clientParams := c.getParameters(params)
-
-	// place the client params in the msg params, giving priority to the message
-	for k, v := range clientParams {
-		if _, ok := params[k]; !ok {
-			params[k] = v
-		}
+	if message.Destination() == "" {
+		return nil, fmt.Errorf("message has no destination set")
 	}
 
-	parts := []string{}
-	for k, v := range params {
-		if v != "" {
-			parts = append(parts, k+"="+v)
-		}
-	}
-	paramstr := strings.Join(parts, "&")
+	paramstr := c.messageParameters(message)
 	body := bytes.NewBuffer([]byte(paramstr))
 
 	resp, err := http.Post(apiURL, "application/x-www-form-urlencoded", body)
-
 	if err != nil {
 		return nil, err
 	}
@@ -127,20 +114,48 @@ func (c *Client) SendMessage(message Message) (*Response, error) {
 	return response, nil
 }
 
+func (c *Client) messageParameters(message Message) string {
+	// get the message parameters
+	params := message.GetParameters()
+
+	// get the client parameters
+	clientParams := c.getParameters()
+
+	// place the client params in the msg params, giving priority to the message
+	for k, v := range clientParams {
+		if _, ok := params[k]; !ok {
+			params[k] = v
+		}
+	}
+
+	// merge the params to a string that we can post
+	parts := []string{}
+	for k, v := range params {
+		if v != "" {
+			parts = append(parts, k+"="+v)
+		}
+	}
+
+	sort.Sort(ByKey(parts))
+
+	return strings.Join(parts, "&")
+}
+
 func (c *Client) handleResponse(respBytes []byte) (*Response, error) {
 
 	respStr := string(respBytes)
-	if strings.HasPrefix("OK: ", respStr) {
-		idstr := strings.TrimPrefix(respStr, "OK: ")
+	if strings.HasPrefix(respStr, "OK: ") {
+		idstr := strings.TrimSpace(strings.TrimPrefix(respStr, "OK: "))
 		return &Response{
 			Success:     true,
 			TrackingIDs: strings.Split(idstr, ","),
 		}, nil
 	}
 
-	if strings.HasPrefix("Error: ", respStr) {
-		return nil, fmt.Errorf("%s", strings.TrimPrefix("Error: ", respStr))
+	if strings.HasPrefix(respStr, "Error: ") {
+		errstr := strings.TrimPrefix(respStr, "Error: ")
+		return nil, fmt.Errorf("%s", strings.TrimSpace(errstr))
 	}
 
-	return nil, fmt.Errorf("response error")
+	return nil, fmt.Errorf("response error: %s", respStr)
 }
