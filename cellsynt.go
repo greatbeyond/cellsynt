@@ -101,7 +101,7 @@ func (c *Client) SendMessage(message Message) (*Response, error) {
 			"destination": message.Destination(),
 			"error":       err.Error(),
 			"type":        message.Type(),
-		}).Error("error sending message", caller())
+		}).Debug("error sending message", caller())
 		return nil, err
 	}
 
@@ -109,7 +109,7 @@ func (c *Client) SendMessage(message Message) (*Response, error) {
 		"type":         message.Type(),
 		"destination":  message.Destination(),
 		"tracking_ids": response.TrackingIDs,
-	}).Info("sent message")
+	}).Debug("sent message")
 
 	return response, nil
 }
