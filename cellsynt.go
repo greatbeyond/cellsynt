@@ -71,13 +71,13 @@ func (c *Client) getParameters() map[string]string {
 		"charset":        string(c.Charset),
 		"allowconcat":    ternaryStr(c.AllowConcat, "6", ""),
 	}
-	return clearEmptyParams(params)
+	return clearEmpty(params)
 }
 
 // SendMessage dispatches a message to the destination
 func (c *Client) SendMessage(message Message) (*Response, error) {
 
-	if message.Destination() == "" {
+	if message.Destinations() == "" {
 		return nil, fmt.Errorf("message has no destination set")
 	}
 
@@ -98,7 +98,7 @@ func (c *Client) SendMessage(message Message) (*Response, error) {
 	response, err := c.handleResponse(responseData)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"destination": message.Destination(),
+			"destination": message.Destinations(),
 			"error":       err.Error(),
 			"type":        message.Type(),
 		}).Debug("error sending message", caller())
@@ -107,7 +107,7 @@ func (c *Client) SendMessage(message Message) (*Response, error) {
 
 	log.WithFields(log.Fields{
 		"type":         message.Type(),
-		"destination":  message.Destination(),
+		"destination":  message.Destinations(),
 		"tracking_ids": response.TrackingIDs,
 	}).Debug("sent message")
 

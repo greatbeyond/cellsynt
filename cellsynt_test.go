@@ -69,8 +69,8 @@ func (suite *CellsyntSuite) Test_Client_getParameters_Normal(c *C) {
 func (suite *CellsyntSuite) Test_Client_messageParameters_Normal(c *C) {
 
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text:        "test",
 		Charset:     CharsetUTF8,
@@ -88,8 +88,8 @@ func (suite *CellsyntSuite) Test_Client_messageParameters_Normal(c *C) {
 func (suite *CellsyntSuite) Test_Client_messageParameters_Override(c *C) {
 
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text:        "test",
 		Charset:     CharsetISO88591,
@@ -164,8 +164,8 @@ func (suite *CellsyntSuite) Test_Client_SendMessage_MissingDestination_1(c *C) {
 
 func (suite *CellsyntSuite) Test_Client_SendMessage_MissingDestination_2(c *C) {
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{},
+		Destination: &Destination{
+			Recipients: []string{},
 		},
 		Text: "test",
 	}
@@ -176,8 +176,8 @@ func (suite *CellsyntSuite) Test_Client_SendMessage_MissingDestination_2(c *C) {
 func (suite *CellsyntSuite) Test_Client_SendMessage_Normal(c *C) {
 
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text:        "test",
 		Charset:     CharsetUTF8,
@@ -211,8 +211,8 @@ func (suite *CellsyntSuite) Test_Client_SendMessage_Normal(c *C) {
 
 func (suite *CellsyntSuite) Test_Client_SendMessage_Error(c *C) {
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text: "test",
 	}

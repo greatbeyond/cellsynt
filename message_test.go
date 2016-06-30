@@ -28,30 +28,35 @@ func (suite *MessageSuite) SetUpTest(c *C) {}
 func (suite *MessageSuite) TearDownTest(c *C) {}
 
 // -------------------------------------------------------------
-// Reciptient
+// Destination
 
-func (suite *MessageSuite) Test_Reciptient_Normal(c *C) {
-	r := &Reciptient{
-		Destinations: []string{"0703112233"},
-		CountryCode:  "46",
+func (suite *MessageSuite) Test_Destination_Normal(c *C) {
+	r := &Destination{
+		Recipients:         []string{"0703112233"},
+		DefaultCountryCode: "46",
 	}
 	c.Assert(r.GetParameters(), DeepEquals, map[string]string{
 		"destination": "0046703112233",
 	})
 }
 
-func (suite *MessageSuite) Test_Reciptient_Multiple(c *C) {
-	r := &Reciptient{
-		Destinations: []string{
+func (suite *MessageSuite) Test_Destination_Multiple(c *C) {
+	r := &Destination{
+		Recipients: []string{
 			"0046703112233",
 			"+46703112233",
 			"0703112233",
 		},
-		CountryCode: "46",
+		DefaultCountryCode: "46",
 	}
 	c.Assert(r.GetParameters(), DeepEquals, map[string]string{
 		"destination": "0046703112233,0046703112233,0046703112233",
 	})
+}
+
+func (suite *MessageSuite) Test_Destination_Nil(c *C) {
+	var dest *Destination
+	c.Assert(dest.GetParameters(), DeepEquals, map[string]string{})
 }
 
 // -------------------------------------------------------------
@@ -82,8 +87,8 @@ func (suite *MessageSuite) Test_Options_Omitted(c *C) {
 
 func (suite *MessageSuite) Test_TextMessage_Full(c *C) {
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text:        "test",
 		Charset:     CharsetUTF8,
@@ -106,8 +111,8 @@ func (suite *MessageSuite) Test_TextMessage_Full(c *C) {
 
 func (suite *MessageSuite) Test_TextMessage_Minimal(c *C) {
 	r := &TextMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text: "test åäö",
 	}
@@ -123,8 +128,8 @@ func (suite *MessageSuite) Test_TextMessage_Minimal(c *C) {
 
 func (suite *MessageSuite) Test_BinaryMessage_Normal(c *C) {
 	r := &BinaryMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Options: &Options{
 			OriginatorType: OriginatorTypeAlpha,
@@ -145,8 +150,8 @@ func (suite *MessageSuite) Test_BinaryMessage_Normal(c *C) {
 
 func (suite *MessageSuite) Test_BinaryMessage_Minimal(c *C) {
 	r := &BinaryMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 
 		Binary: []byte("334455FF"),
@@ -163,8 +168,8 @@ func (suite *MessageSuite) Test_BinaryMessage_Minimal(c *C) {
 
 func (suite *MessageSuite) Test_FlashMessage_Normal(c *C) {
 	r := &FlashMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Options: &Options{
 			OriginatorType: OriginatorTypeAlpha,
@@ -187,8 +192,8 @@ func (suite *MessageSuite) Test_FlashMessage_Normal(c *C) {
 
 func (suite *MessageSuite) Test_FlashMessage_Minimal(c *C) {
 	r := &FlashMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Text: "test",
 	}
@@ -204,8 +209,8 @@ func (suite *MessageSuite) Test_FlashMessage_Minimal(c *C) {
 
 func (suite *MessageSuite) Test_UnicodeMessage_Normal(c *C) {
 	r := &UnicodeMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 		Options: &Options{
 			OriginatorType: OriginatorTypeAlpha,
@@ -228,8 +233,8 @@ func (suite *MessageSuite) Test_UnicodeMessage_Normal(c *C) {
 
 func (suite *MessageSuite) Test_UnicodeMessage_Minimal(c *C) {
 	r := &UnicodeMessage{
-		Reciptient: &Reciptient{
-			Destinations: []string{"0046703112233"},
+		Destination: &Destination{
+			Recipients: []string{"0046703112233"},
 		},
 
 		Text: "Ελλάδα",

@@ -50,7 +50,7 @@ func mergeParams(a, b map[string]string) map[string]string {
 	return c
 }
 
-func clearEmptyParams(params map[string]string) map[string]string {
+func clearEmpty(params map[string]string) map[string]string {
 	cleared := map[string]string{}
 	for k, v := range params {
 		if v != "" {
