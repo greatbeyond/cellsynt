@@ -22,8 +22,8 @@ client := &cellsynt.Client{
 ### Send a text
 ```
 textMsg := &cellsynt.TextMessage{
-    Reciptient: &cellsynt.Reciptient{
-        Destinations: reciptients,
+    Destination: &cellsynt.Destination{
+        Recipients: []string{"555-123-45"},
     },
     Text:    message.Body,
     Charset: cellsynt.CharsetUTF8,
@@ -37,8 +37,8 @@ if err != nil {
 Override client options by including them in the message:
 ```
 textMsg := &cellsynt.TextMessage{
-    Reciptient: &cellsynt.Reciptient{
-        Destinations: reciptients,
+    Destination: &cellsynt.Destination{
+        Recipients: []string{"555-123-45"},
     },
     Options: &cellsynt.Options{
         OriginatorType: OriginatorTypeNumeric,
