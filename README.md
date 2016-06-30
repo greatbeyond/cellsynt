@@ -1,7 +1,7 @@
 # cellsynt
 Cellsynt API lib in Go
 
-[![wercker status](https://app.wercker.com/status/c215f070f60e91325c5fd6e8bd53c1c5/s "wercker status")](https://app.wercker.com/project/bykey/c215f070f60e91325c5fd6e8bd53c1c5) [![Coverage Status](https://coveralls.io/repos/github/greatbeyond/cellsynt/badge.svg?branch=master)](https://coveralls.io/github/greatbeyond/cellsynt?branch=master) 
+[![wercker status](https://app.wercker.com/status/c215f070f60e91325c5fd6e8bd53c1c5/s "wercker status")](https://app.wercker.com/project/bykey/c215f070f60e91325c5fd6e8bd53c1c5) [![Coverage Status](https://coveralls.io/repos/github/greatbeyond/cellsynt/badge.svg?branch=master)](https://coveralls.io/github/greatbeyond/cellsynt?branch=master) [![GoDoc](https://godoc.org/github.com/greatbeyond/cellsynt?status.svg)](https://godoc.org/github.com/greatbeyond/cellsynt)
 
 ## Create a client
 A client is used when communicating with Cellsynt.
