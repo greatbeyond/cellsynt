@@ -1,8 +1,8 @@
-# cellsynth
-Cellsynth API lib in Go
+# cellsynt
+Cellsynt API lib in Go
 
 ## Create a client
-A client is used when communicating with Cellsynth.
+A client is used when communicating with Cellsynt.
 ```
 client := cellsynt.NewClient(username, username, senderName),
 ```
