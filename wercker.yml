@@ -22,7 +22,7 @@ build:
     - script:
         name: go get
         code: |
-          go get
+          go get ./...
 
     # Build the project
     - script:
