@@ -23,7 +23,7 @@ import (
 	"sort"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // Client holds username and password, and default values for messages
